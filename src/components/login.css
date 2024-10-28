@@ -1,0 +1,44 @@
+.logo {
+    text-align: center;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    width: 70%;
+    max-width: 400px;
+    background-color: var(--primary-color);
+    padding: 1em;
+    border-radius: 1em;
+}
+
+.login-input {
+	background-color: var(--background-color);
+	border: none;
+	margin-top: 1em;
+	padding: 1em;
+	border-radius: 1em;
+}
+
+#login-button {
+	background-color: var(--background-color);
+	border: none;
+	margin-top: 4em;
+	border-radius: 1em;
+	color: var(--text-color);
+	padding: 0.3em;
+}
+
+.logged-in-div {
+	background-color: var(--primary-color);
+	display: flex;
+	flex-direction: column;
+	padding: 1em;
+	border-radius: 1em;
+}
+
+#logout-button {
+	background-color: var(--background-color);
+	border: none;
+	padding: 0.3em;
+}

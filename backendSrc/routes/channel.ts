@@ -6,7 +6,7 @@ const router = express.Router();
 // GET /api/channels
 router.get('/', async (_: Request, res: Response) => {
     try {
-        const channels = await getAllChannels();
+        const channels = await getAllChannels(); 
         res.json(channels);
     } catch (error) {
         console.error('Error getting channels:', error);

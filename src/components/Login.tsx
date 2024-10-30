@@ -1,30 +1,31 @@
 import { useState, useEffect } from "react";
 import { Channel } from "../models/interface";
 import ChannelList from "./ChannelList";
-import './login.css'
+import './login.css';
 
 const LS_KEY = 'JWT-DEMO--TOKEN';
 const USERNAME_KEY = 'USERNAME';
 
-const LoginLogout = () => {
+const LoginLogout = ({ setIsLoggedIn }: { setIsLoggedIn: (status: boolean) => void }) => {
     const [username, setUsername] = useState<string>('');
     const [password, setPassword] = useState<string>('');
-    const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+    const [isLoggedIn, setLoggedIn] = useState<boolean>(false);
+    const [isGuest, setIsGuest] = useState<boolean>(false); 
     const [channels, setChannels] = useState<Channel[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
     useEffect(() => {
-        refreshLoginStatus();
-        if (isLoggedIn) {
-            fetchChannels(); 
+        const token = localStorage.getItem(LS_KEY);
+        const storedUsername = localStorage.getItem(USERNAME_KEY);
+        if (token) {
+            setLoggedIn(true);
+            setIsGuest(token === 'guest');
+            setUsername(storedUsername || '');
+            setIsLoggedIn(true);
+            fetchChannels();
         }
-    }, [isLoggedIn]);
-
-    const refreshLoginStatus = () => {
-        setIsLoggedIn(localStorage.getItem(LS_KEY) !== null);
-        setUsername(localStorage.getItem(USERNAME_KEY) || '');
-    };
+    }, []);
 
     const handleLogin = async () => {
         const data = { username, password };
@@ -32,9 +33,8 @@ const LoginLogout = () => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-              
-		},
-		body: JSON.stringify(data),
+            },
+            body: JSON.stringify(data),
         });
 
         if (response.status !== 200) {
@@ -46,10 +46,21 @@ const LoginLogout = () => {
         const token: { jwt: string } = await response.json();
         localStorage.setItem(LS_KEY, token.jwt);
         localStorage.setItem(USERNAME_KEY, username);
-        setIsLoggedIn(true);
-        setSuccessMessage('Thank you for logging in.');
+        setLoggedIn(true);
+        setIsGuest(false);
+        setSuccessMessage(`Välkommen ${username}!`);
         setError(null);
         await fetchChannels();
+    };
+
+    const handleLoginAsGuest = () => {
+        localStorage.setItem(LS_KEY, 'guest');
+        localStorage.setItem(USERNAME_KEY, 'Guest');
+        setLoggedIn(true);
+        setIsGuest(true); 
+        setUsername('Guest');
+        setIsLoggedIn(true); 
+        fetchChannels();
     };
 
     const fetchChannels = async () => {
@@ -72,42 +83,43 @@ const LoginLogout = () => {
 
     const handleLogout = () => {
         localStorage.removeItem(LS_KEY);
-        localStorage.removeItem(USERNAME_KEY); 
+        localStorage.removeItem(USERNAME_KEY);
+        setLoggedIn(false);
+        setIsGuest(false);
         setIsLoggedIn(false);
-        setSuccessMessage('You are logged out.');
         setChannels([]);
     };
 
     return (
         <div>
-            <main>
-				<h1 className="logo">
-					ChatApp!
-				</h1>
+            <main className={isLoggedIn ? 'logged-in' : 'logged-out'}>
+                <h1 className="logo">ChatApp!</h1>
                 {isLoggedIn ? (
-                    <div className="logged-in-div">
-                        <p>Användare: <br/> <strong>{username}</strong></p>
-                        <button id="logout-button" onClick={handleLogout}>Log out</button>
+                    <div className='logged-in-div'>
+                        <p><strong>{username}</strong></p>
+                        <button id="logout-button" onClick={handleLogout}>Logga ut</button>
                     </div>
                 ) : (
-                    
-					<div className="login-form">
-                        <input className="login-input"
+                    <div className="login-form">
+                        <input 
+                            className="login-input"
                             id="username" 
                             type="text" 
                             value={username} 
                             onChange={(e) => setUsername(e.target.value)} 
                             placeholder="Username"
                         />
-                        <input className="login-input"
+                        <input 
+                            className="login-input"
                             id="password" 
                             type="password" 
                             value={password} 
                             onChange={(e) => setPassword(e.target.value)} 
                             placeholder="Password"
                         />
-                        <button id="login-button" onClick={handleLogin} disabled={isLoggedIn}>Log in</button>
-						</div>
+                        <button id="guest-login-button" onClick={handleLoginAsGuest}>Logga in som gäst</button>
+                        <button id="login-button" onClick={handleLogin} disabled={isLoggedIn}>Logga in</button>
+                    </div>
                 )}
             </main>
 
@@ -116,7 +128,7 @@ const LoginLogout = () => {
                 {error && <p style={{ color: 'red' }}>{error}</p>}
                 
                 {isLoggedIn && channels.length > 0 && (
-                    <ChannelList channels={channels} />
+                    <ChannelList channels={channels} isLoggedIn={isLoggedIn} isGuest={isGuest} />
                 )}
             </div>
         </div>

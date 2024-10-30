@@ -17,10 +17,18 @@ main {
 	width: 100vw;
 }
 
+.logged-out {
+    flex-direction: column;
+}
+
+.logged-in {
+    flex-direction: row;
+	justify-content: space-around;
+}
+
 body {
     box-sizing: border-box;
     margin: 0;
     overflow-x: hidden;
 	background-color: var(--background-color);
 }
-

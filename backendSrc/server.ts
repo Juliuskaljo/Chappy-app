@@ -1,6 +1,7 @@
 import express, { Express, Request, Response } from 'express';
 import { router as userRouter } from './routes/users.js';
 import { router as channelRouter } from './routes/channel.js';
+import { router as messageRouter} from './routes/message.js'
 import { getUserData, validateUser } from './config/users.js';
 import jwt from 'jsonwebtoken';
 import { ObjectId } from 'mongodb';
@@ -25,6 +26,7 @@ app.use(cors());
 // Router middleware
 app.use('/api/users', userRouter);
 app.use('/api/channels', channelRouter)
+app.use('/api/messages', messageRouter)
 
 // POST /login
 app.post('/api/login', async (req: Request, res: Response) => {

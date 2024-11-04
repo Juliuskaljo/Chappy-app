@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Channel } from "../models/interface";
+import { Channel, User } from "../models/interface";
 import ChannelList from "./ChannelList";
 import './login.css';
 
@@ -12,6 +12,7 @@ const LoginLogout = ({ setIsLoggedIn }: { setIsLoggedIn: (status: boolean) => vo
     const [isLoggedIn, setLoggedIn] = useState<boolean>(false);
     const [isGuest, setIsGuest] = useState<boolean>(false); 
     const [channels, setChannels] = useState<Channel[]>([]);
+    const [users, setUsers] = useState<User[]>([]); // State för users
     const [error, setError] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -22,10 +23,28 @@ const LoginLogout = ({ setIsLoggedIn }: { setIsLoggedIn: (status: boolean) => vo
             setLoggedIn(true);
             setIsGuest(token === 'guest');
             setUsername(storedUsername || '');
-            setIsLoggedIn(true);
             fetchChannels();
+            fetchUsers();
         }
     }, []);
+
+    const fetchUsers = async () => {
+        const response = await fetch('/api/users', {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem(LS_KEY)}`,
+            },
+        });
+
+        if (response.status !== 200) {
+            const errorData = await response.json();
+            setError(errorData.message || 'Could not fetch users');
+            return;
+        }
+
+        const data: User[] = await response.json();
+        setUsers(data);
+        setError(null);
+    };
 
     const handleLogin = async () => {
         const data = { username, password };
@@ -51,6 +70,7 @@ const LoginLogout = ({ setIsLoggedIn }: { setIsLoggedIn: (status: boolean) => vo
         setSuccessMessage(`Välkommen ${username}!`);
         setError(null);
         await fetchChannels();
+        await fetchUsers();
     };
 
     const handleLoginAsGuest = () => {
@@ -61,6 +81,7 @@ const LoginLogout = ({ setIsLoggedIn }: { setIsLoggedIn: (status: boolean) => vo
         setUsername('Guest');
         setIsLoggedIn(true); 
         fetchChannels();
+        fetchUsers();
     };
 
     const fetchChannels = async () => {
@@ -88,6 +109,7 @@ const LoginLogout = ({ setIsLoggedIn }: { setIsLoggedIn: (status: boolean) => vo
         setIsGuest(false);
         setIsLoggedIn(false);
         setChannels([]);
+        setUsers([]);
     };
 
     return (
@@ -128,7 +150,7 @@ const LoginLogout = ({ setIsLoggedIn }: { setIsLoggedIn: (status: boolean) => vo
                 {error && <p style={{ color: 'red' }}>{error}</p>}
                 
                 {isLoggedIn && channels.length > 0 && (
-                    <ChannelList channels={channels} isLoggedIn={isLoggedIn} isGuest={isGuest} />
+                    <ChannelList channels={channels} users={users} isLoggedIn={isLoggedIn} isGuest={isGuest} />
                 )}
             </div>
         </div>

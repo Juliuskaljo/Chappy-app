@@ -1,7 +1,8 @@
 import express, { Request, Response, Router } from "express";
-import { WithId } from "mongodb";
+import { Db, ObjectId, WithId } from "mongodb";
 import { User } from "../models/interfaces.js";
 import { getAllUser } from "../config/users.js";
+import { connectToDatabase } from "../config/database.js";
 
 const router: Router = express.Router();
 
@@ -15,5 +16,11 @@ router.get('/', async (_: Request, res: Response<WithId<User>[]>) => {
         res.sendStatus(500);
     }
 });
+
+
+export async function getUserById(userId: ObjectId) {
+    const db: Db = await connectToDatabase();
+    return await db.collection('userCollection').findOne({ _id: userId }); // Anta att du har en 'usersCollection'
+}
 
 export { router };

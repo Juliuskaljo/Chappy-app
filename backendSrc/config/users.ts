@@ -3,7 +3,6 @@ import { User } from "../models/interfaces";
 import { connectToDatabase } from "./database.js";
 
 export type UserId = ObjectId
-// Hämta alla användare (t.ex. för admin)
 async function getAllUser(): Promise<WithId<User>[]> {
     const db: Db = await connectToDatabase();
     const col: Collection<User> = db.collection<User>('userCollection');
@@ -12,7 +11,6 @@ async function getAllUser(): Promise<WithId<User>[]> {
     return result;
 }
 
-// Validerar lösenord och användarnamn
 async function validateUser(username: string, password: string): Promise<ObjectId | null> {
     const db: Db = await connectToDatabase();
     const col: Collection<User> = db.collection<User>('userCollection');
@@ -25,7 +23,6 @@ async function validateUser(username: string, password: string): Promise<ObjectI
     return null;
 }
 
-// Hämtar användardata med id
 async function getUserData(userId: ObjectId): Promise<User | null> {
     const db: Db = await connectToDatabase();
     const col: Collection<User> = db.collection<User>('userCollection');

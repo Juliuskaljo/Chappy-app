@@ -1,6 +1,7 @@
 
 
 export interface User {
+	_id: string;
     username: string;
     password: string;
     role: "guest" | "user"
@@ -19,5 +20,7 @@ export interface Message {
     content: string;
     timestamp: Date;
     channel: string;
-    isPrivate: boolean;
+    isDM: boolean;
+	_id: string;
+	receiver?: string
 }

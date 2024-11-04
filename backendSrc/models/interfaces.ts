@@ -3,8 +3,7 @@ import { ObjectId } from "mongodb";
 export interface User {
     username: string;
     password: string;
-    role: "guest" | "user"
-    channels: ObjectId[];
+    role: "guest" | "user";
 	_id?: ObjectId;
 }
 
@@ -15,9 +14,11 @@ export interface Channel {
 }
 
 export interface Message {
-    sender: ObjectId;
+    _id: ObjectId;
+    sender: string;
     content: string;
     timestamp: Date;
     channel: ObjectId;
-    isPrivate: boolean;
+    isDM: boolean;
+    receiver?: ObjectId | null;
 }

@@ -1,5 +1,3 @@
-
-
 export interface User {
 	_id: string;
     username: string;
@@ -19,8 +17,8 @@ export interface Message {
     sender: string;
     content: string;
     timestamp: Date;
-    channel: string;
-    isDM: boolean;
+    channel?: string | null;
+    isDM?: boolean;
 	_id: string;
 	receiver?: string
 }

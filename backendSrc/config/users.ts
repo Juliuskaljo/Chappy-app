@@ -2,13 +2,12 @@ import { Collection, Db, ObjectId, WithId } from "mongodb";
 import { User } from "../models/interfaces";
 import { connectToDatabase } from "./database.js";
 
-export type UserId = ObjectId
-async function getAllUser(): Promise<WithId<User>[]> {
+async function getAllUser(loggedInUserId?: string): Promise<WithId<User>[]> {
     const db: Db = await connectToDatabase();
-    const col: Collection<User> = db.collection<User>('userCollection');
+    const col = db.collection<User>('userCollection');
 
-    const result: WithId<User>[] = await col.find({}).toArray();
-    return result;
+    const query = loggedInUserId ? { _id: { $ne: new ObjectId(loggedInUserId) } } : {};
+    return await col.find(query).toArray();
 }
 
 async function validateUser(username: string, password: string): Promise<ObjectId | null> {

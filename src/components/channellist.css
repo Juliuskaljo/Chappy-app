@@ -1,6 +1,6 @@
 .channel-layout {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
+    display: flex;
+	flex-direction: column;
     gap: 1em;
     margin-top: 1em;
 }
@@ -10,6 +10,14 @@
     font-size: 1.3em;
     text-align: left;
     overflow-wrap: break-word;
+}
+
+.go-back-button {
+	background-color: var(--primary-color);
+	color: aliceblue;
+	border: none;
+	padding: 0.5em;
+	border-radius: 1em;
 }
 
 .channel-sidebar {
@@ -43,7 +51,7 @@
     background-color: #a94d30; 
 }
 
-.channel-content {
+.channel-messages {
     background-color: var(--background-color);
     padding: 1em;
 	margin-right: 1em;
@@ -78,6 +86,3 @@
     align-items: center;
     margin-bottom: 5px;
 }
-
-/* .msg-content {
-} */

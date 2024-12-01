@@ -1,7 +1,8 @@
-import express, { Express, Request, Response } from 'express';
+import express, { Request, Response } from 'express';
 import { router as userRouter } from './routes/users.js';
-import { router as channelRouter } from './routes/channel.js';
+import { router as channelRouter} from './routes/channel.js'
 import { router as messageRouter} from './routes/message.js'
+import { router as DmRouter } from './routes/dm.js'
 import { getUserData, validateUser } from './config/users.js';
 import jwt from 'jsonwebtoken';
 import { ObjectId } from 'mongodb';
@@ -10,12 +11,12 @@ import cors from 'cors';
 
 dotenv.config();
 
-const app: Express = express();
+const app = express();
 const port: number = Number(process.env.PORT || 4242);
 const { sign, verify } = jwt;
 
 interface Payload {
-    userId: ObjectId;
+    userId: ObjectId | string;
     iat: number;
 }
 
@@ -25,14 +26,25 @@ app.use(cors());
 
 // Router middleware
 app.use('/api/users', userRouter);
-app.use('/api/channels', channelRouter)
-app.use('/api/messages', messageRouter)
+app.use('/api/channels', channelRouter);
+app.use('/api/messages', messageRouter);
+app.use('/api/messages', DmRouter);
+
 
 // POST /login
 app.post('/api/login', async (req: Request, res: Response) => {
     try {
         if (!process.env.SECRET) {
             res.sendStatus(500);
+            return;
+        }
+
+        if (req.body.username === "guest") {
+            const guestUserId = "guest";
+            const payload: Payload = { userId: guestUserId, iat: Math.floor(Date.now() / 1000) };
+            const token = sign(payload, process.env.SECRET as string);
+
+            res.json({ jwt: token, userId: guestUserId });
             return;
         }
 
@@ -46,7 +58,7 @@ app.post('/api/login', async (req: Request, res: Response) => {
         const payload: Payload = { userId, iat: Math.floor(Date.now() / 1000) };
         const token = sign(payload, process.env.SECRET as string);
 
-        res.json({ jwt: token });
+        res.json({ jwt: token, userId: userId });
         return;
     } catch (error) {
         console.error(error);
@@ -54,6 +66,7 @@ app.post('/api/login', async (req: Request, res: Response) => {
         return;
     }
 });
+
 
 // GET /protected
 

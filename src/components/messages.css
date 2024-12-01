@@ -1,0 +1,86 @@
+.messages-container {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--background-color);
+    padding: 1em;
+    border-radius: 8px;
+	width: 70vw;
+    max-height: 70vh;
+    overflow-y: auto;
+    margin: 1em 0;
+    border: 1px solid var(--primary-color);
+}
+
+.message-item {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1em;
+    padding: 0.8em;
+    border-radius: 12px;
+    max-width: 70%;
+    word-wrap: break-word;
+}
+
+.message-item.sent {
+    align-self: flex-end;
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.message-item.received {
+    align-self: flex-start;
+    background-color: var(--secondary-color);
+    color: black;
+}
+
+.message-header {
+    font-size: 0.8em;
+    margin-bottom: 0.3em;
+    color: var(--text-color-secondary);
+}
+
+.message-content {
+    font-size: 1em;
+}
+
+.new-message-form {
+    display: flex;
+    margin-top: 1em;
+    align-items: center;
+	margin-bottom: 4em;
+}
+
+.new-message-form input {
+    flex: 1;
+    padding: 0.8em;
+    border-radius: 8px;
+    border: 1px solid var(--primary-color);
+    margin-right: 0.5em;
+}
+
+.new-message-form button {
+    padding: 0.8em 1.2em;
+    border: none;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.new-message-form button:hover {
+    background-color: var(--primary-color-dark);
+}
+
+.go-back-button {
+    margin-bottom: 1em;
+    padding: 0.5em 1em;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.go-back-button:hover {
+    background-color: var(--primary-color-dark);
+}

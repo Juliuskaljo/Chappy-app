@@ -10,7 +10,11 @@
     --text-color: #333;
 }
 
-main {
+.go-back-button {
+	margin-top: 3em;
+}
+
+.mainpage {
 	display: flex;
 	flex-direction: column;
 	align-items: center;

@@ -2,9 +2,12 @@
     text-align: center;
 }
 
+form {
+	display: flex;
+	flex-direction: column;
+}
+
 .login-form {
-    display: flex;
-    flex-direction: column;
     width: 70%;
     max-width: 400px;
     background-color: var(--primary-color);
@@ -20,22 +23,23 @@
 	border-radius: 1em;
 }
 
-#login-button {
+.login-button {
 	background-color: var(--background-color);
 	border: none;
-	margin-top: 0.5em;
+	margin-top: 1em;
 	border-radius: 1em;
 	color: var(--text-color);
-	padding: 0.3em;
+	padding: 1em;
 }
 
-#guest-login-button {
+.guest-login-button {
 	background-color: var(--background-color);
 	border: none;
-	margin-top: 4em;
+	width: 50%;
+	margin-top: 1em;
 	border-radius: 1em;
 	color: var(--text-color);
-	padding: 0.3em;
+	
 }
 
 .logged-in-div {
@@ -55,9 +59,40 @@
 	text-align: center;
 }
 
-#logout-button {
-	background-color: var(--background-color);
+.logout-button {
+	background-color: #c45f3d;
+	color: aliceblue;
 	border: none;
 	padding: 0.5em;
 	border-radius: 1em;
 }
+
+.input-wrapper {
+	margin-bottom: 1em;
+	display: flex;
+	flex-direction: column;
+  }
+  
+  .login-input {
+	background-color: var(--background-color);
+	border: 2px solid transparent;
+	padding: 1em;
+	border-radius: 1em;
+	outline: none;
+  }
+  
+  .login-input.error {
+	border: 2px solid rgb(11, 0, 0);
+  }
+  
+  .error-text {
+	color: rgb(0, 0, 0);
+	font-size: 0.9em;
+	margin-top: 0.3em;
+  }
+  
+  .general-error {
+	color: rgb(0, 0, 0);
+	margin-top: 1em;
+	text-align: center;
+  }

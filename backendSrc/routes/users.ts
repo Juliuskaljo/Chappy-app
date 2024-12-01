@@ -1,26 +1,20 @@
 import express, { Request, Response, Router } from "express";
-import { Db, ObjectId, WithId } from "mongodb";
-import { User } from "../models/interfaces.js";
 import { getAllUser } from "../config/users.js";
-import { connectToDatabase } from "../config/database.js";
+
 
 const router: Router = express.Router();
 
 // GET /api/users
-router.get('/', async (_: Request, res: Response<WithId<User>[]>) => {
+router.get('/', async (req: Request, res: Response) => {
+    const loggedInUserId = req.query.loggedInUserId as string;
+
     try {
-        const allUsers: WithId<User>[] = await getAllUser();
-        res.send(allUsers);
+        const allUsers = await getAllUser(loggedInUserId);
+        res.json(allUsers);
     } catch (error) {
         console.error('Error fetching users:', error);
-        res.sendStatus(500);
+        res.status(500).json({ message: 'Internal server error' });
     }
 });
-
-
-export async function getUserById(userId: ObjectId) {
-    const db: Db = await connectToDatabase();
-    return await db.collection('userCollection').findOne({ _id: userId }); // Anta att du har en 'usersCollection'
-}
 
 export { router };

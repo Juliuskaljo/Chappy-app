@@ -11,14 +11,15 @@ export interface Channel {
     name: string;
     isLocked: boolean;
     messages: ObjectId[];
+	userIds: ObjectId[]
 }
 
 export interface Message {
-    _id: ObjectId;
-    sender: string;
+	_id?: ObjectId;
+    sender: ObjectId;
     content: string;
     timestamp: Date;
-    channel: ObjectId;
+    channel: ObjectId | null;
     isDM: boolean;
-    receiver?: ObjectId | null;
+    receiver: ObjectId | null;
 }

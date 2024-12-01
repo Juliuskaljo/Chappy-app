@@ -1,55 +1,83 @@
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import LoginLogout from './components/Login';
-import ChannelList from './components/ChannelList';
-import { Channel, User } from './models/interface'; // Importera User också
+import Login from './components/Login';
+import Channels from './components/ChannelList';
+import ChannelMessages from './components/ChannelMessage';
+import DMList from './components/DMList';
+import DMView from './components/DMView';
+import "./index.css"
+import "./components/login.css"
 
-function App() {
-    const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); 
-    const [channels, setChannels] = useState<Channel[]>([]);
-    const [users, setUsers] = useState<User[]>([]); // Lägg till detta för att hålla användarna
+const App = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [currentPage, setCurrentPage] = useState<string>('login');
+  const [selectedChannelId, setSelectedChannelId] = useState<string | null>(null);
+  const [selectedDMUserId, setSelectedDMUserId] = useState<string | null>(null);
+  const [isGuest, setIsGuest] = useState<boolean>(false);
 
-    const handleLoginStatusChange = (status: boolean) => {
-        setIsLoggedIn(status);
-    };
+  useEffect(() => {
+    const userId = localStorage.getItem('userId');
+    if (userId) {
+      setIsLoggedIn(true);
+      setIsGuest(userId === 'guest');
+      setCurrentPage('channels');
+    }
+  }, []);
 
-    // Ny funktion för att hämta användare
-    const fetchUsers = async () => {
-        try {
-            const response = await fetch('/api/users'); // Anta att du har en API-endpoint för att hämta användare
-            if (response.ok) {
-                const data = await response.json();
-                setUsers(data);
-            } else {
-                console.error('Failed to fetch users');
-            }
-        } catch (error) {
-            console.error('Error fetching users:', error);
-        }
-    };
+  const handleLogin = () => {
+    setCurrentPage('channels');
+    setIsLoggedIn(true);
+    setIsGuest(localStorage.getItem('userId') === 'guest');
+  };
 
-    useEffect(() => {
-        if (isLoggedIn) {
-            fetchUsers(); // Hämta användare när någon är inloggad
-        }
-    }, [isLoggedIn]);
+  const handleLogout = () => {
+    localStorage.clear();
+    setIsLoggedIn(false);
+    setIsGuest(false);
+    setCurrentPage('login');
+  };
 
-    return (
-        <Router>
-            <div>
-                <Routes>
-                    <Route 
-                        path="/" 
-                        element={<LoginLogout setIsLoggedIn={handleLoginStatusChange} />} 
-                    />
-                    <Route 
-                        path="channels" 
-                        element={<ChannelList channels={channels} users={users} isLoggedIn={isLoggedIn} isGuest={false} />} 
-                    />
-                </Routes>
-            </div>
-        </Router>
-    );
-}
+  const handleChannelSelect = (channelId: string) => {
+    setSelectedChannelId(channelId);
+    setCurrentPage('messages');
+  };
+
+  const handleDMUserSelect = (userId: string) => {
+    if (!isGuest) {
+      setSelectedDMUserId(userId);
+      setCurrentPage('dmview');
+    }
+  };
+
+  const handleBackToChannels = () => {
+    setCurrentPage('channels');
+    setSelectedChannelId(null);
+    setSelectedDMUserId(null);
+  };
+
+  return (
+    <div className='mainpage'>
+      <h1>Chat-app</h1>
+
+      {isLoggedIn && <button className='logout-button' onClick={handleLogout}>Logout</button>}
+
+      {currentPage === 'login' && !isLoggedIn && <Login onLogin={handleLogin} />}
+      
+      {currentPage === 'channels' && isLoggedIn && (
+        <div>
+          <Channels onChannelSelect={handleChannelSelect} />
+          {!isGuest && <DMList onUserSelect={handleDMUserSelect}/>}
+        </div>
+      )}
+
+      {currentPage === 'messages' && selectedChannelId && (
+        <ChannelMessages channelId={selectedChannelId} onBack={handleBackToChannels} />
+      )}
+
+      {currentPage === 'dmview' && selectedDMUserId && (
+        <DMView userId={localStorage.getItem('userId') || ''} otherUserId={selectedDMUserId} onBack={handleBackToChannels} />
+      )}
+    </div>
+  );
+};
 
 export default App;

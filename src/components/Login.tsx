@@ -1,160 +1,118 @@
-import { useState, useEffect } from "react";
-import { Channel, User } from "../models/interface";
-import ChannelList from "./ChannelList";
-import './login.css';
+import React, { useState } from 'react';
+import './Login.css';
 
-const LS_KEY = 'JWT-DEMO--TOKEN';
-const USERNAME_KEY = 'USERNAME';
+interface LoginProps {
+  onLogin: () => void;
+}
 
-const LoginLogout = ({ setIsLoggedIn }: { setIsLoggedIn: (status: boolean) => void }) => {
-    const [username, setUsername] = useState<string>('');
-    const [password, setPassword] = useState<string>('');
-    const [isLoggedIn, setLoggedIn] = useState<boolean>(false);
-    const [isGuest, setIsGuest] = useState<boolean>(false); 
-    const [channels, setChannels] = useState<Channel[]>([]);
-    const [users, setUsers] = useState<User[]>([]); // State för users
-    const [error, setError] = useState<string | null>(null);
-    const [successMessage, setSuccessMessage] = useState<string | null>(null);
+const Login = ({ onLogin }: LoginProps) => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [usernameError, setUsernameError] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
 
-    useEffect(() => {
-        const token = localStorage.getItem(LS_KEY);
-        const storedUsername = localStorage.getItem(USERNAME_KEY);
-        if (token) {
-            setLoggedIn(true);
-            setIsGuest(token === 'guest');
-            setUsername(storedUsername || '');
-            fetchChannels();
-            fetchUsers();
-        }
-    }, []);
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-    const fetchUsers = async () => {
-        const response = await fetch('/api/users', {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem(LS_KEY)}`,
-            },
-        });
+    setUsernameError(!username);
+    setPasswordError(!password);
 
-        if (response.status !== 200) {
-            const errorData = await response.json();
-            setError(errorData.message || 'Could not fetch users');
-            return;
-        }
+    if (!username || !password) {
+      setError('Please fill in all required fields.');
+      return;
+    }
 
-        const data: User[] = await response.json();
-        setUsers(data);
-        setError(null);
-    };
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
 
-    const handleLogin = async () => {
-        const data = { username, password };
-        const response = await fetch('/api/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-        });
+      const data = await response.json();
 
-        if (response.status !== 200) {
-            const errorData = await response.json();
-            setError(errorData.message || 'Please log in again.');
-            return;
-        }
+      if (response.ok) {
+        localStorage.setItem('jwt', data.jwt);
+        localStorage.setItem('userId', data.userId);
+        onLogin();
+      } else {
+        setError(data.message || 'Login failed');
+      }
+    } catch (err) {
+      setError('Error logging in');
+      console.error(err);
+    }
+  };
 
-        const token: { jwt: string } = await response.json();
-        localStorage.setItem(LS_KEY, token.jwt);
-        localStorage.setItem(USERNAME_KEY, username);
-        setLoggedIn(true);
-        setIsGuest(false);
-        setSuccessMessage(`Välkommen ${username}!`);
-        setError(null);
-        await fetchChannels();
-        await fetchUsers();
-    };
+  const handleGuestLogin = async () => {
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username: 'guest', password: '' }),
+      });
 
-    const handleLoginAsGuest = () => {
-        localStorage.setItem(LS_KEY, 'guest');
-        localStorage.setItem(USERNAME_KEY, 'Guest');
-        setLoggedIn(true);
-        setIsGuest(true); 
-        setUsername('Guest');
-        setIsLoggedIn(true); 
-        fetchChannels();
-        fetchUsers();
-    };
+      const data = await response.json();
 
-    const fetchChannels = async () => {
-        const response = await fetch('/api/channels', {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem(LS_KEY)}`,
-            },
-        });
+      if (response.ok) {
+        localStorage.setItem('userId', 'guest');
+        localStorage.setItem('role', 'guest');
+        onLogin();
+      } else {
+        setError(data.message || 'Guest login failed');
+      }
+    } catch (err) {
+      setError('Error logging in as guest');
+      console.error(err);
+    }
+  };
 
-        if (response.status !== 200) {
-            const errorData = await response.json();
-            setError(errorData.message || 'Could not fetch channels');
-            return;
-        }
-
-        const data: Channel[] = await response.json();
-        setChannels(data);
-        setError(null);
-    };
-
-    const handleLogout = () => {
-        localStorage.removeItem(LS_KEY);
-        localStorage.removeItem(USERNAME_KEY);
-        setLoggedIn(false);
-        setIsGuest(false);
-        setIsLoggedIn(false);
-        setChannels([]);
-        setUsers([]);
-    };
-
-    return (
-        <div>
-            <main className={isLoggedIn ? 'logged-in' : 'logged-out'}>
-                <h1 className="logo">ChatApp!</h1>
-                {isLoggedIn ? (
-                    <div className='logged-in-div'>
-                        <p><strong>{username}</strong></p>
-                        <button id="logout-button" onClick={handleLogout}>Logga ut</button>
-                    </div>
-                ) : (
-                    <div className="login-form">
-                        <input 
-                            className="login-input"
-                            id="username" 
-                            type="text" 
-                            value={username} 
-                            onChange={(e) => setUsername(e.target.value)} 
-                            placeholder="Username"
-                        />
-                        <input 
-                            className="login-input"
-                            id="password" 
-                            type="password" 
-                            value={password} 
-                            onChange={(e) => setPassword(e.target.value)} 
-                            placeholder="Password"
-                        />
-                        <button id="guest-login-button" onClick={handleLoginAsGuest}>Logga in som gäst</button>
-                        <button id="login-button" onClick={handleLogin} disabled={isLoggedIn}>Logga in</button>
-                    </div>
-                )}
-            </main>
-
-            <div className="channels-result">
-                {successMessage && <p>{successMessage}</p>}
-                {error && <p style={{ color: 'red' }}>{error}</p>}
-                
-                {isLoggedIn && channels.length > 0 && (
-                    <ChannelList channels={channels} users={users} isLoggedIn={isLoggedIn} isGuest={isGuest} />
-                )}
-            </div>
+  return (
+    <div className="login-form">
+      <form onSubmit={handleLogin}>
+        <div className="input-wrapper">
+          <input
+            className={`login-input ${usernameError ? 'error' : ''}`}
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => {
+              setUsername(e.target.value);
+              setUsernameError(false);
+            }}
+          />
+          {usernameError && <span className="error-text">Username is required</span>}
         </div>
-    );
+        <div className="input-wrapper">
+          <input
+            className={`login-input ${passwordError ? 'error' : ''}`}
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              setPasswordError(false);
+            }}
+          />
+          {passwordError && <span className="error-text">Password is required</span>}
+        </div>
+        <button className="login-button" type="submit">
+          Login
+        </button>
+      </form>
+
+      <button className="guest-login-button" onClick={handleGuestLogin}>
+        Log in as Guest
+      </button>
+
+      {error && <p className="general-error">{error}</p>}
+    </div>
+  );
 };
 
-export default LoginLogout;
+export default Login;

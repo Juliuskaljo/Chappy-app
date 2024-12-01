@@ -1,3 +1,17 @@
+KNOWN BUGS:
+
+Cant see usernames but that is on the way!
+
+FEATURES:
+
+Register account
+
+Create channels as user
+
+Send pictures
+
+React with emojis
+
 1. GET /api/channels  
    Method: GET  
    URL: /api/channels  

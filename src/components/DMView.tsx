@@ -17,7 +17,7 @@ interface DMViewProps {
 const DMView = ({ userId, otherUserId, onBack }: DMViewProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -35,7 +35,6 @@ const DMView = ({ userId, otherUserId, onBack }: DMViewProps) => {
         const data = await response.json();
         setMessages(data);
       } catch (err) {
-        setError('Error fetching messages');
         console.error(err);
       }
     };
@@ -48,7 +47,6 @@ const DMView = ({ userId, otherUserId, onBack }: DMViewProps) => {
 
     if (!senderId) {
       console.error('User is not logged in or senderId is missing.');
-      setError('You must be logged in to send a message.');
       return;
     }
 
@@ -85,7 +83,6 @@ const DMView = ({ userId, otherUserId, onBack }: DMViewProps) => {
       setMessages((prev) => [...prev, messageToAdd]);
       setNewMessage('');
     } catch (err) {
-      setError('Error while sending message');
       console.error('Error while sending message:', err);
     }
   };

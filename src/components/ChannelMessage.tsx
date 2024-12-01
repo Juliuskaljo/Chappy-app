@@ -16,7 +16,7 @@ interface ChannelMessagesProps {
 const ChannelMessages = ({ channelId, onBack }: ChannelMessagesProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
-  const [error, setError] = useState<string | null>(null);
+
 
   const fetchMessages = async () => {
     try {
@@ -33,8 +33,8 @@ const ChannelMessages = ({ channelId, onBack }: ChannelMessagesProps) => {
       const data = await response.json();
       setMessages(data);
     } catch (err) {
-      setError('Error fetching messages');
-      console.error(err);
+      console.log(err);
+	  
     }
   };
 
